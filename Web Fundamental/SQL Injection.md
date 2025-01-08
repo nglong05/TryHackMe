@@ -309,7 +309,7 @@ If you're struggling to find the table name, the below query should help you on 
 
 ![alt text](image-23.png)
 
-### Remediation
+## Remediation
 
 As impactful as SQL Injection vulnerabilities are, developers do have a way to protect their web applications from them by following the advice below:
 

