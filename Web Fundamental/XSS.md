@@ -476,3 +476,154 @@ if(isset($_POST['btnSubmit']))
     }
 }
 ```
+
+![alt text](image-29.png)
+
+## DOM-Based XSS
+The DOM is a programming interface representing a web document as a tree. The DOM makes it possible to programmatically access and manipulate the different parts of a website using JavaScript. Let’s consider a practical example.
+
+Consider the HTML code of example.com in the screenshot below (as fetched on the first of February 2024). We opened the Web Developer Tools using the Firefox web browser and checked the Inspector tab.
+
+![alt text](image-30.png)
+
+A web browser with the Inspector tab displaying an example website.
+
+The DOM tree shown above is like the following list with sublists.
+
+    document
+        <!DOCTYPE html>
+        html
+            head
+                title
+                meta
+                meta
+                meta
+                style
+            body
+                div
+                    h1
+                    p
+                    p
+                        a
+
+The tree starts with the document node and branches into DOCTYPE and html. The html node branches into head and body. The head has the title, a few meta tags, and a style. In this simple example, the body has a single div that branches into one h1 and two p. This is a concise page. More practical pages would have tens or hundreds of branches.
+
+We can view the DOM tree using the web browser’s built-in Web Developer’s Tools. For example, press Ctrl + Shift + I on Firefox and check the Inspector tab.
+
+Alternatively, we can access the JavaScript console, as mentioned in Task 2. Using JavaScript, you can manipulate the DOM tree. For example, you can create a new element using `document.createElement()` and add a child to any element using `element.append()`. Here is an example from MDN documentation.
+```js
+let div = document.createElement("div");
+let p = document.createElement("p");
+div.append(p);
+
+console.log(div.childNodes); // NodeList [ <p> ]
+```
+In the example code above, we created two elements, `div` and `p`. Then, we appended the latter element to the div element.
+
+**Vulnerable Web Applications**
+
+DOM-based XSS vulnerabilities take place within the browser. They don’t need to go to the server and return to the client’s web browser. In other words, the attacker will try to exploit this situation by injecting a malicious script, for example, into the URL, and it will be executed on the client’s side without any role for the server in this. We will present an elementary and minimal static site without relying on the back-end code to demonstrate this concept.
+
+Vulnerable “Static” Site
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vulnerable Page</title>
+</head>
+<body>
+    <div id="greeting"></div>
+    <script>
+        const name = new URLSearchParams(window.location.search).get('name');
+        document.write("Hello, " + name);
+    </script>
+</body>
+</html>
+```
+The page above expects the user to provide their name after ?name=. In the screenshot below:
+
+-    The user has entered Web Tester after ?name in the URL.
+-    The greeting worked as expected and displayed “Hello, Web Tester”.
+-    Finally, the DOM structure on the right is left intact; the `<body>` has three direct children.
+
+A web browser with the Inspector tab displaying the original DOM structure of an example static site.
+
+The user might try to inject a malicious script. In the screenshot below, we see the following:
+
+-    The user added `<script>alert("XSS")</script>` instead of only Web Tester as their name.
+-    The script was executed, and an alert dialogue box was displayed.
+-    Most importantly, we can see how the DOM tree got a new element. `<body>` has four children now.
+
+A web browser with the Inspector tab displaying the manipulated DOM structure of an example static site.
+
+This basic example illustrates a couple of things:
+
+-    The server has no direct role in DOM-based vulnerabilities. In this demonstration, everything took place on the client’s browser without using a back end.
+-    The DOM was insecurely modified using document.write().
+
+**Fixed “Static” Site**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Page</title>
+</head>
+<body>
+    <div id="greeting"></div>
+    <script>
+        const name = new URLSearchParams(window.location.search).get('name');
+        // Escape the user input to prevent XSS attacks
+        const escapedName = encodeURIComponent(name);
+        document.getElementById("greeting").textContent = "Hello, " + escapedName;
+    </script>
+</body>
+</html>
+```
+One way to fix this page is by avoiding adding user input directly with `document.write()`. Instead, we first escaped the user input using `encodeURIComponent()` and then added it to textContent.
+
+The previous attempt does not work now. We can see that:
+
+-    The user has added JavaScript as part of their input.
+-    The JavaScript code is displayed as encoded characters and presents no threat in the current context.
+-    The DOM structure is no longer affected when the user attempts to add code as part of their submitted name.
+
+![alt text](image-31.png)
+
+## Context and Evasion
+### Context
+
+The injected payload will most likely find its way within one of the following:
+
+-    Between HTML tags
+-    Within HTML tags
+-    Inside JavaScript
+
+When XSS happens between HTML tags, the attacker can run `<script>alert(document.cookie)</script>`.
+
+However, when the injection is within an HTML tag, we need to end the HTML tag to give the script a turn to load. Consequently, we might adapt our payload to `><script>alert(document.cookie)</script>` or `"><script>alert(document.cookie)</script>` or something similar that would fit in the context.
+
+We might need to terminate the script to run the injected one if we can inject our XSS within an existing JavaScript. For instance, we can start with `</script>` to end the script and continue from there. If your code is within a JavaScript string, you can close the string with `'`, complete the command with a semicolon, execute your command, and comment out the rest of the line with `//`. You can try something like this `';alert(document.cookie)//`.
+
+This example should give you some ideas to escape the context you start from. Generally speaking, being aware of the context where your XXS payload is executing is very important for the successful execution of the payload.
+
+### Evasion
+
+Various repositories can be consulted to build your custom XSS payload. This gives you plenty of room for experimentation. One such list is the XSS Payload List.
+
+However, sometimes, there are filters blocking XSS payloads. If there is a limitation based on the payload length, then Tiny XSS Payloads can be a great starting point to bypass length restrictions.
+
+If XSS payloads are blocked based on specific blocklists, there are various tricks for evasion. For instance, a horizontal tab, a new line, or a carriage return can break up the payload and evade the detection engines.
+
+-    Horizontal tab (TAB) is 9 in hexadecimal representation
+-    New line (LF) is A in hexadecimal representation
+-    Carriage return (CR) is D in hexadecimal representation
+
+Consequently, based on the XSS Filter Evasion Cheat Sheet, we can break up the payload. `<IMG SRC="javascript:alert('XSS');">` in various ways:
+
+`<IMG SRC="jav&#x09;ascript:alert('XSS');">`
+
+`<IMG SRC="jav&#x0A;ascript:alert('XSS');">`
+
+`<IMG SRC="jav&#x0D;ascript:alert('XSS');">`
+
+![alt text](image-32.png)
