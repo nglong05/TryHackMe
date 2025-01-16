@@ -120,3 +120,49 @@ The user connects to the server by using the Telnet protocol, which means enteri
 ### Enumerating Telnet
 
 `sudo nmap -vv -sS -T4 -A -p- 10.10.253.54`
+
+![alt text](image-88.png)
+
+### Exploiting Telnet
+**Types of Telnet Exploit**
+
+Telnet, being a protocol, is in and of itself insecure for the reasons we talked about earlier. It lacks encryption, so sends all communication over plaintext, and for the most part has poor access control. There are CVE's for Telnet client and server systems, however, so when exploiting you can check for those on:
+
+-    https://www.cvedetails.com/
+-    https://cve.mitre.org/
+
+A CVE, short for Common Vulnerabilities and Exposures, is a list of publicly disclosed computer security flaws. When someone refers to a CVE, they usually mean the CVE ID number assigned to a security flaw.
+
+However, you're far more likely to find a misconfiguration in how telnet has been configured or is operating that will allow you to exploit it.
+
+**Method Breakdown**
+
+So, from our enumeration stage, we know:
+
+- There is a poorly hidden telnet service running on this machine
+
+- The service itself is marked "backdoor"
+
+- We have possible username of "Skidy" implicated
+
+Using this information, let's try accessing this telnet port, and using that as a foothold to get a full reverse shell on the machine!
+
+**Connecting to Telnet**
+
+You can connect to a telnet server with the following syntax:
+
+`telnet [ip] [port]`
+
+We're going to need to keep this in mind as we try and exploit this machine.
+
+**What is a Reverse Shell?**
+
+A "shell" can simply be described as a piece of code or program which can be used to gain code or command execution on a device.
+
+A reverse shell is a type of shell in which the target machine communicates back to the attacking machine.
+
+The attacking machine has a listening port, on which it receives the connection, resulting in code or command execution being achieved.
+
+![alt text](image-89.png)
+
+![alt text](image-90.png)
