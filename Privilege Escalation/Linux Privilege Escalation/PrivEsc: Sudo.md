@@ -24,8 +24,8 @@ User karen may run the following commands on ip-10-10-108-33:
 ```
 https://gtfobins.github.io/ is a valuable source that provides information on how any program, on which you may have sudo rights, can be used. 
 
-![alt text](image-9.png)
+![alt text](img/image-9.png)
 
-![alt text](image-8.png)
+![alt text](img/image-8.png)
 
-![alt text](image-10.png)
+![alt text](img/image-10.png)

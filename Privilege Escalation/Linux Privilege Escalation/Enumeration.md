@@ -91,11 +91,11 @@ Looking at earlier commands with the history command can give us some idea about
 <summary>ifconfig</summary> 
 The target system may be a pivoting point to another network. The ifconfig command will give us information about the network interfaces of the system. The example below shows the target system has three interfaces (eth0, tun0, and tun1). Our attacking machine can reach the eth0 interface but can not directly access the two other networks. 
 
-![alt text](image.png)
+![alt text](img/image.png)
 
  This can be confirmed using the ip route command to see which network routes exist. 
 
- ![alt text](image-1.png)
+ ![alt text](img/image-1.png)
 </details>
 
 
@@ -195,7 +195,7 @@ Below is a short example used to find files that have the SUID bit set. The SUID
 `find / -perm -u=s -type f 2>/dev/null`: Find files with the SUID bit, which allows us to run the file with a higher privilege level than the current user. 
 </details>
 
-![alt text](image-2.png)
+![alt text](img/image-2.png)
 
 ### Automated Enumeration Tools
 
